@@ -81,3 +81,22 @@ fun calculateTotalElectronicsPriceOver500(products: List<Product>): Double {
         .map { it.price }
         .sum()
 }
+
+fun validateCitizenId(id: String): Boolean {
+    val normalizedId = id.map { ch ->
+        if (ch in '๐'..'๙') (ch - '๐' + '0'.code).toChar() else ch
+    }.joinToString("")
+
+    if (normalizedId.length != 13 || !normalizedId.all { it.isDigit() }) {
+        return false
+    }
+
+    val sum = (0 until 12).sumOf { i ->
+        normalizedId[i].digitToInt() * (13 - i)
+    }
+    val expectedCheckDigit = (11 - (sum % 11)) % 10
+    val actualCheckDigit = normalizedId[12].digitToInt()
+
+    return expectedCheckDigit == actualCheckDigit
+}
+

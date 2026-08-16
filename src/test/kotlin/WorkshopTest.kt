@@ -3,6 +3,9 @@ package org.example
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.test.assertFalse
+
 
 
 class WorkshopTest {
@@ -157,4 +160,45 @@ fun `test count electronics items over 500`() {
 
 
     // --- Tests for Workshop #2: Data Analysis Pipeline End ---
+
+    // --- Tests for validateCitizenId ---
+
+    // 1. เคสถูกต้อง
+    @Test
+    fun `valid citizen id returns true`() {
+        assertTrue(validateCitizenId("1101700185206"))
+    }
+
+    // 2. เคสความยาวผิด
+    @Test
+    fun `citizen id with invalid length returns false`() {
+        assertFalse(validateCitizenId("12345"))
+        assertFalse(validateCitizenId("12345678901234"))
+    }
+
+    // 3. เคสมีตัวอักษรปน
+    @Test
+    fun `citizen id with non-digit characters returns false`() {
+        assertFalse(validateCitizenId("110170018520a"))
+        assertFalse(validateCitizenId("1101700185-06"))
+    }
+
+    // 4. Edge Case: เช็ค checksum หลักสุดท้ายของเลขบัตร
+    @Test
+    fun `id with wrong checksum returns false`() {
+        // หลักที่ 13 ต้องเป็น check digit ที่คำนวณจาก 12 หลักแรก
+        // 110170018520 → check digit ที่ถูกต้องคือ 6
+        assertFalse(validateCitizenId("1101700185207")) // หลักสุดท้ายผิด
+        assertFalse(validateCitizenId("1234567890129")) // ที่ถูกคือ ...1
+
+        // ใบที่ checksum ถูกต้อง ต้องยังผ่านอยู่
+        assertTrue(validateCitizenId("3509900547250"))
+        assertTrue(validateCitizenId("1234567890121"))
+    }
+
+    // Edge Case: เลขไทย
+    @Test
+    fun `id with Thai number returns true`() {
+        assertTrue(validateCitizenId("๑๑๐๑๗๐๐๑๘๕๒๐๖"))
+    }
 }
